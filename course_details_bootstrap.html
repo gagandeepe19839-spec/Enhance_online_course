@@ -1,37 +1,64 @@
-{% extends 'onlinecourse/base.html' %}
-{% block content %}
-<div class="container-fluid">
-    <h2>{{ course.name }}</h2>
-    <div class="card-columns">
-        {% for lesson in course.lesson_set.all %}
-        <div class="card mt-1">
-            <div class="card-header"><h5>Lesson {{ forloop.counter }}: {{ lesson.title }}</h5></div>
-            <div class="card-body">{{ lesson.content }}</div>
+
+{% if passed %}
+    <div class="alert alert-success text-center">
+        <h2>Congratulations!</h2>
+        <h4>You have successfully passed the mock examination.</h4>
+    </div>
+{% else %}
+    <div class="alert alert-danger text-center">
+        <h2>Exam Completed</h2>
+        <h4>You need at least 70% to pass. Please try again.</h4>
+    </div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-body text-center">
+        <h3>Exam Score</h3>
+
+        <h2>{{ total_score }} / {{ max_score }}</h2>
+
+        <h4>{{ percentage }}%</h4>
+
+        <p>Passing Percentage: 70%</p>
+    </div>
+</div>
+
+<h3>Exam Results</h3>
+
+{% for result in exam_results %}
+
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <h5>{{ forloop.counter }}. {{ result.question.question_text }}</h5>
+
+            {% if result.is_correct %}
+                <span class="badge badge-success">
+                    Correct Answer
+                </span>
+            {% else %}
+                <span class="badge badge-danger">
+                    Incorrect Answer
+                </span>
+            {% endif %}
+
+            <p class="mt-2">
+                Your Answer:
+                {% for choice in result.selected_choices %}
+                    {{ choice.choice_text }}
+                {% empty %}
+                    Not Answered
+                {% endfor %}
+            </p>
+
+            <p>
+                Correct Answer:
+                {% for choice in result.correct_choices %}
+                    {{ choice.choice_text }}
+                {% endfor %}
+            </p>
+
         </div>
-        {% endfor %}
     </div>
 
-    {% if user.is_authenticated %}
-    <button class="btn btn-primary btn-block mt-4" data-toggle="collapse" data-target="#exam">Start Exam</button>
-    <div id="exam" class="collapse mt-3">
-        <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
-            {% csrf_token %}
-            {% for question in course.question_set.all %}
-            <div class="card mt-2">
-                <div class="card-header"><strong>{{ question.question_text }}</strong></div>
-                <div class="card-body">
-                    {% for choice in question.choice_set.all %}
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="choice_{{ choice.id }}" id="choice_{{ choice.id }}" value="{{ choice.id }}">
-                        <label class="form-check-label" for="choice_{{ choice.id }}">{{ choice.choice_text }}</label>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
-            <input class="btn btn-success btn-block mt-3 mb-5" type="submit" value="Submit Exam">
-        </form>
-    </div>
-    {% endif %}
-</div>
-{% endblock %}
+{% endfor %}
