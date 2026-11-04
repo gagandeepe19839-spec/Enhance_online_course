@@ -9,9 +9,10 @@ class ChoiceInline(admin.StackedInline):
     model = Choice
     extra = 4
 
-class QuestionAdmin(admin.ModelAdmin):
-    inlines = [ChoiceInline]
 
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ['question_text', 'course', 'grade']
+    inlines = [ChoiceInline]
 class LessonAdmin(admin.ModelAdmin):
     list_display = ['title']
     inlines = [QuestionInline]
